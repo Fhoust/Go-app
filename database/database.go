@@ -1,9 +1,11 @@
-package main
+package database
 
 import (
 	"database/sql"
 	"github.com/go-sql-driver/mysql"
 	"log"
+
+	"github.com/Fhoust/Go-app/database"
 )
 
 var (
@@ -13,7 +15,7 @@ var (
 // SetupDB this function open a database connection
 func SetupDB() {
 	log.Println("Opening a new connection with database")
-	dbURL, dbPassword, dbUser := GetDBVars()
+	dbURL, dbPassword, dbUser := database.GetDBVars()
 	cfg := mysql.Config{
 		User:   dbUser,
 		Passwd: dbPassword,
