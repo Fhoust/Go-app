@@ -40,7 +40,7 @@ func UsuarioHandler(w http.ResponseWriter, r *http.Request) {
 		insert(w, r)
 	default:
 		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "Wrong method\nThis endpoint just accept GET\nMethod used: %v", r.Method)
+		fmt.Fprintf(w, "Wrong method\n")
 	}
 }
 
