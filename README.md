@@ -84,7 +84,7 @@ curl -d '{"nome":"Old App 2.0"}' -H "Content-Type: application/json" -X POST htt
 This update some already existing ID
 
 ``` shell
-curl -d '{"nome":"New potato", "id":14}' -H "Content-Type: application/json" -X UPDATE http://0.0.0.0:3000/usuarios/
+curl -d '{"nome":"New potato"}' -H "Content-Type: application/json" -X UPDATE http://0.0.0.0:3000/usuarios/2   ## Update ID 2 nome
 ```
 
 * Delete

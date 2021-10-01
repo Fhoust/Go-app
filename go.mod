@@ -1,5 +1,5 @@
-module smallApp
+module github.com/Fhoust/Go-app
 
 go 1.17
 
-require github.com/go-sql-driver/mysql v1.6.0
+require github.com/go-sql-driver/mysql v1.6.0 // indirect
