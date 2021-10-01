@@ -51,12 +51,14 @@ docker run -ti -e DB_PASS=123456 --network host db-client:latest
 
 ## API
 
-| Endpoint      | Method        | Expected         |
+### /usuarios/
+
+| Function      | Method        | Expected         |
 |:-------------:|:-------------:|:----------------:|
-|  /usuarios/   | GET           | /{id} (optional) |
-|    /insert    | POST          | JSON             |
-|  /delete/     | GET           | /{id} (optional) |
-|  /update      | POST          | JSON             |
+|  Get user     | GET           | /{id} (optional) |
+|  Create new   | POST          | JSON             |
+|  Update user  | UPDATE        | JSON             |
+|  Delete user  | DELETE        | /{id} (optional) |
 
 ### API examples
 
@@ -69,19 +71,12 @@ curl http://0.0.0.0:3000/usuarios/    ## Return all users
 curl http://0.0.0.0:3000/usuarios/5   ## Return info about just ID 5
 ```
 
-* Insert
+* Create
 
-Insert a new user in the database
-
-``` shell
-curl -d '{"nome":"Old App 2.0", "id":0}' -H "Content-Type: application/json" -X POST http://localhost:3000/insert
-```
-
-* Delete
+Create a new user in the database
 
 ``` shell
-curl http://0.0.0.0:3000/delete/    ## Delete all users
-curl http://0.0.0.0:3000/delete/5   ## Delete just ID 5
+curl -d '{"nome":"Old App 2.0"}' -H "Content-Type: application/json" -X POST http://localhost:3000/usuarios/
 ```
 
 * Update
@@ -89,5 +84,12 @@ curl http://0.0.0.0:3000/delete/5   ## Delete just ID 5
 This update some already existing ID
 
 ``` shell
-curl -d '{"nome":"New potato", "id":14}' -H "Content-Type: application/json" -X POST http://0.0.0.0:3000/update
+curl -d '{"nome":"New potato", "id":14}' -H "Content-Type: application/json" -X UPDATE http://0.0.0.0:3000/usuarios/
+```
+
+* Delete
+
+``` shell
+curl -X DELETE http://0.0.0.0:3000/usuarios/    ## Delete all users
+curl -X DELETE http://0.0.0.0:3000/usuarios/5   ## Delete just ID 5
 ```

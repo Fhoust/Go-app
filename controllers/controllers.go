@@ -1,4 +1,4 @@
-package main
+package controllers
 
 import (
 	"encoding/json"
@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/Fhoust/Go-app/database"
 )
 
 // Usuario struct
@@ -28,56 +30,23 @@ func UsuarioHandler(w http.ResponseWriter, r *http.Request) {
 		usuarioPorID(w, r, id)
 	case r.Method == "GET":
 		usuarioTodos(w, r)
-	default:
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "Wrong method\nThis endpoint just accept GET\nMethod used: %v", r.Method)
-	}
-}
-
-// DeleteUser faz o delete dos users dentro do banco de dados
-func DeleteUser(w http.ResponseWriter, r *http.Request) {
-	log.Println("New access in /delete/")
-	sid := strings.TrimPrefix(r.URL.Path, "/delete/")
-	id, _ := strconv.Atoi(sid)
-
-	switch {
-	case r.Method == "GET" && id > 0:
+	case r.Method == "DELETE" && id > 0:
 		deletePerId(w, r, id)
-	case r.Method == "GET":
+	case r.Method == "DELETE":
 		deleteAll(w, r)
-	default:
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "Wrong method\nThis endpoint just accept GET\nMethod used: %v", r.Method)
-	}
-}
-
-// Update an old one
-func Update(w http.ResponseWriter, r *http.Request) {
-	log.Println("New access in /update")
-	switch {
-	case r.Method == "POST":
-		update(w, r)
-	default:
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "Wrong method\nThis endpoint just accept POST\nMethod used: %v", r.Method)
-	}
-}
-
-// Insert a new user
-func Insert(w http.ResponseWriter, r *http.Request) {
-	log.Println("New access in /insert")
-	switch {
+	case r.Method == "UPDATE" && id > 0:
+		update(w, r, id)
 	case r.Method == "POST":
 		insert(w, r)
 	default:
 		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "Wrong method\nThis endpoint just accept POST\nMethod used: %v", r.Method)
+		fmt.Fprintf(w, "Wrong method\n")
 	}
 }
 
 func insert(w http.ResponseWriter, r *http.Request) {
 	//TODO check if the user already exists
-	db := GetDB()
+	db := database.GetDB()
 
 	stmt, _ := db.Prepare("insert into usuarios(nome) values(?)")
 
@@ -100,9 +69,9 @@ func insert(w http.ResponseWriter, r *http.Request) {
 }
 
 
-func update(w http.ResponseWriter, r *http.Request) {
+func update(w http.ResponseWriter, r *http.Request, id int) {
 	//TODO check if the user exists
-	db := GetDB()
+	db := database.GetDB()
 
 	var newUser Usuario
 
@@ -116,7 +85,7 @@ func update(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Updated\n"))
 
 	stmt, _ := db.Prepare("update usuarios set nome = ? where id = ?")
-	stmt.Exec(newUser.Nome, newUser.ID)
+	stmt.Exec(newUser.Nome, id)
 
 	log.Printf("Updated %d to %s\n", newUser.ID, newUser.Nome)
 
@@ -127,7 +96,7 @@ func update(w http.ResponseWriter, r *http.Request) {
 // deletePerId this function deletes one ID user from the database
 func deletePerId(w http.ResponseWriter, r *http.Request, id int) {
 	// TODO check if the user exists
-	db := GetDB()
+	db := database.GetDB()
 
 	var u Usuario
 	db.QueryRow("select id, nome from usuarios where id = ?", id).Scan(&u.ID, &u.Nome)
@@ -144,7 +113,7 @@ func deletePerId(w http.ResponseWriter, r *http.Request, id int) {
 
 // deleteAll this function deletes all ids of the database
 func deleteAll(w http.ResponseWriter, r *http.Request) {
-	db := GetDB()
+	db := database.GetDB()
 
 	rows, _ := db.Query("select * from usuarios where id > ?", 0)
 	deleter, _ := db.Prepare("delete from usuarios where id = ?")
@@ -170,7 +139,7 @@ func deleteAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func usuarioPorID(w http.ResponseWriter, r *http.Request, id int) {
-	db := GetDB()
+	db := database.GetDB()
 
 	var u Usuario
 	db.QueryRow("select id, nome from usuarios where id = ?", id).Scan(&u.ID, &u.Nome)
@@ -184,7 +153,7 @@ func usuarioPorID(w http.ResponseWriter, r *http.Request, id int) {
 }
 
 func usuarioTodos(w http.ResponseWriter, r *http.Request) {
-	db := GetDB()
+	db := database.GetDB()
 
 	rows, _ := db.Query("select * from usuarios where id > ?", 0)
 	defer rows.Close()
