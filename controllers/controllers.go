@@ -13,23 +13,23 @@ import (
 	"github.com/Fhoust/Go-app/database"
 )
 
-// Usuario struct
-type Usuario struct {
+// User struct
+type User struct {
 	ID   int    `json:"id"`
-	Nome string `json:"nome"`
+	Name string `json:"name"`
 }
 
-// UsuarioHandler analisa o request e delega a funcao adequada
-func UsuarioHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("New access in /usuarios/")
-	sid := strings.TrimPrefix(r.URL.Path, "/usuarios/")
+// UserHandler analyze the request and delegate the proper function
+func UserHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("New access in /users/")
+	sid := strings.TrimPrefix(r.URL.Path, "/users/")
 	id, _ := strconv.Atoi(sid)
 
 	switch {
 	case r.Method == "GET" && id > 0:
-		usuarioPorID(w, r, id)
+		usersPerID(w, r, id)
 	case r.Method == "GET":
-		usuarioTodos(w, r)
+		allUsers(w, r)
 	case r.Method == "DELETE" && id > 0:
 		deletePerId(w, r, id)
 	case r.Method == "DELETE":
@@ -46,26 +46,27 @@ func UsuarioHandler(w http.ResponseWriter, r *http.Request) {
 
 func insert(w http.ResponseWriter, r *http.Request) {
 	//TODO check if the user already exists
+	// TODO check received payload
 	db := database.GetDB()
 
-	stmt, _ := db.Prepare("insert into usuarios(nome) values(?)")
+	stmt, _ := db.Prepare("insert into users(name) values(?)")
 
-	var newUser Usuario
+	var u User
 
 	rawBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	json.Unmarshal([]byte(rawBody), &newUser)
+	json.Unmarshal([]byte(rawBody), &u)
 
-	dbReturn, _ := stmt.Exec(newUser.Nome)
+	dbReturn, _ := stmt.Exec(u.Name)
 	id, _ := dbReturn.LastInsertId()
 	w.Write([]byte("Inserted\n"))
-	log.Printf("Inserted %s with the id %d\n", newUser.Nome, id)
+	log.Printf("Inserted %s with the id %d\n", u.Name, id)
 
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, "%s was added with the id: %d", newUser.Nome, id)
+	fmt.Fprintf(w, "%s was added with the id: %d", u.Name, id)
 }
 
 
@@ -73,24 +74,24 @@ func update(w http.ResponseWriter, r *http.Request, id int) {
 	//TODO check if the user exists
 	db := database.GetDB()
 
-	var newUser Usuario
+	var oldUser User
 
 	rawBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	json.Unmarshal([]byte(rawBody), &newUser)
+	json.Unmarshal([]byte(rawBody), &oldUser)
 
 	w.Write([]byte("Updated\n"))
 
-	stmt, _ := db.Prepare("update usuarios set nome = ? where id = ?")
-	stmt.Exec(newUser.Nome, id)
+	stmt, _ := db.Prepare("update users set name = ? where id = ?")
+	stmt.Exec(oldUser.Name, id)
 
-	log.Printf("Updated %d to %s\n", newUser.ID, newUser.Nome)
+	log.Printf("Updated %d to %s\n", oldUser.ID, oldUser.Name)
 
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, "%d was updated to the name %s", id, newUser.Nome)
+	fmt.Fprintf(w, "%d was updated to the name %s", id, oldUser.Name)
 }
 
 // deletePerId this function deletes one ID user from the database
@@ -98,38 +99,38 @@ func deletePerId(w http.ResponseWriter, r *http.Request, id int) {
 	// TODO check if the user exists
 	db := database.GetDB()
 
-	var u Usuario
-	db.QueryRow("select id, nome from usuarios where id = ?", id).Scan(&u.ID, &u.Nome)
+	var deadUser User
+	db.QueryRow("select id, name from users where id = ?", id).Scan(&deadUser.ID, &deadUser.Name)
 
-	deleter, _ := db.Prepare("delete from usuarios where id = ?")
+	deleter, _ := db.Prepare("delete from users where id = ?")
 
 	deleter.Exec(id)
 
 	log.Printf("Deleted the id: %d\n", id)
 
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, "%s with the id %d was deleted", u.Nome, u.ID)
+	fmt.Fprintf(w, "%s with the id %d was deleted", deadUser.Name, deadUser.ID)
 }
 
 // deleteAll this function deletes all ids of the database
 func deleteAll(w http.ResponseWriter, r *http.Request) {
 	db := database.GetDB()
 
-	rows, _ := db.Query("select * from usuarios where id > ?", 0)
-	deleter, _ := db.Prepare("delete from usuarios where id = ?")
+	rows, _ := db.Query("select * from users where id > ?", 0)
+	deleter, _ := db.Prepare("delete from users where id = ?")
 
 	defer rows.Close()
 
-	var usuarios []Usuario
+	var users []User
 
 	for rows.Next() {
-		var u Usuario
-		rows.Scan(&u.ID, &u.Nome)
-		usuarios = append(usuarios, u)
+		var u User
+		rows.Scan(&u.ID, &u.Name)
+		users = append(users, u)
 		deleter.Exec(u.ID)
 	}
 
-	json, _ := json.Marshal(usuarios)
+	json, _ := json.Marshal(users)
 
 	log.Println("All users was deleted...")
 
@@ -138,35 +139,35 @@ func deleteAll(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func usuarioPorID(w http.ResponseWriter, r *http.Request, id int) {
+func usersPerID(w http.ResponseWriter, r *http.Request, id int) {
 	db := database.GetDB()
 
-	var u Usuario
-	db.QueryRow("select id, nome from usuarios where id = ?", id).Scan(&u.ID, &u.Nome)
+	var user User
+	db.QueryRow("select id, name from users where id = ?", id).Scan(&user.ID, &user.Name)
 
-	json, _ := json.Marshal(u)
+	json, _ := json.Marshal(user)
 
-	log.Printf("Requested info about %d - %s", u.ID, u.Nome)
+	log.Printf("Requested info about %d - %s", user.ID, user.Name)
 
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, string(json))
 }
 
-func usuarioTodos(w http.ResponseWriter, r *http.Request) {
+func allUsers(w http.ResponseWriter, r *http.Request) {
 	db := database.GetDB()
 
-	rows, _ := db.Query("select * from usuarios where id > ?", 0)
+	rows, _ := db.Query("select * from users where id > ?", 0)
 	defer rows.Close()
 
-	var usuarios []Usuario
+	var users []User
 
 	for rows.Next() {
-		var usuario Usuario
-		rows.Scan(&usuario.ID, &usuario.Nome)
-		usuarios = append(usuarios, usuario)
+		var u User
+		rows.Scan(&u.ID, &u.Name)
+		users = append(users, u)
 	}
 
-	json, _ := json.Marshal(usuarios)
+	json, _ := json.Marshal(users)
 
 	log.Printf("Requested info about all users")
 

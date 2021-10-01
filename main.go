@@ -3,9 +3,9 @@ package main
 import (
 	"log"
 
-	"github.com/Fhoust/Go-app/routes"
 	"github.com/Fhoust/Go-app/common"
 	"github.com/Fhoust/Go-app/database"
+	"github.com/Fhoust/Go-app/routes"
 )
 
 func main() {

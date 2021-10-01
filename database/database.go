@@ -22,7 +22,7 @@ func SetupDB() {
 		Passwd: dbPassword,
 		Net:    "tcp",
 		Addr:   dbURL + ":3306",
-		DBName: "myapp",
+		DBName: "goapp",
 	}
 	myDB, err := sql.Open("mysql", cfg.FormatDSN())
 
@@ -73,11 +73,11 @@ func migration() {
 		panic(err)
 	}
 	
-	myDB.Exec("create database if not exists myapp")
-	myDB.Exec("use myapp")
-	myDB.Exec(`create table if not exists usuarios (
+	myDB.Exec("create database if not exists goapp")
+	myDB.Exec("use goapp")
+	myDB.Exec(`create table if not exists users (
 		id integer auto_increment,
-		nome varchar(80),
+		name varchar(80),
 		PRIMARY KEY(id)
 	)`)
 

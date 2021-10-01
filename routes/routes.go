@@ -10,7 +10,7 @@ import (
 
 // Routes -> define endpoints
 func Routes() {
-	http.HandleFunc("/usuarios/", controllers.UsuarioHandler)
+	http.HandleFunc("/users/", controllers.UserHandler)
 
 	log.Fatal(http.ListenAndServe(common.GetPort(), nil))
 }
