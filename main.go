@@ -4,13 +4,14 @@ import (
 	"log"
 
 	"github.com/Fhoust/Go-app/routes"
-	common "github.com/Fhoust/Go-app/handlers"
+	"github.com/Fhoust/Go-app/common"
+	"github.com/Fhoust/Go-app/database"
 )
 
 func main() {
 
 	common.SetupENV()
-	common.SetupDB()
+	database.SetupDB()
 
 	routes.Routes()
 

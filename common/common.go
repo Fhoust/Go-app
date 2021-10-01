@@ -31,7 +31,7 @@ func SetupENV() {
 
 	dbPassword, exists = os.LookupEnv("DB_PASS")
 	if !exists {
-		dbPassword = ""
+		dbPassword = "123456"
 		log.Println("Undeclared DB_PASS, using default...")
 	}
 

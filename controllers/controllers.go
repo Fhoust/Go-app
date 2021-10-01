@@ -90,7 +90,7 @@ func update(w http.ResponseWriter, r *http.Request, id int) {
 	log.Printf("Updated %d to %s\n", newUser.ID, newUser.Nome)
 
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, "%d was updated to the name %s", newUser.ID, newUser.Nome)
+	fmt.Fprintf(w, "%d was updated to the name %s", id, newUser.Nome)
 }
 
 // deletePerId this function deletes one ID user from the database
