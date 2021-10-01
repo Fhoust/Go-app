@@ -51,7 +51,7 @@ docker run -ti -e DB_PASS=123456 --network host db-client:latest
 
 ## API
 
-### /usuarios/
+### /users/
 
 | Function      | Method        | Expected         |
 |:-------------:|:-------------:|:----------------:|
@@ -62,13 +62,13 @@ docker run -ti -e DB_PASS=123456 --network host db-client:latest
 
 ### API examples
 
-* Usuarios
+* Users
 
 Return all users or the info of just one ID
 
 ``` shell
-curl http://0.0.0.0:3000/usuarios/    ## Return all users
-curl http://0.0.0.0:3000/usuarios/5   ## Return info about just ID 5
+curl http://0.0.0.0:3000/users/    ## Return all users
+curl http://0.0.0.0:3000/users/2   ## Return info about just ID 2
 ```
 
 * Create
@@ -76,7 +76,7 @@ curl http://0.0.0.0:3000/usuarios/5   ## Return info about just ID 5
 Create a new user in the database
 
 ``` shell
-curl -d '{"nome":"Old App 2.0"}' -H "Content-Type: application/json" -X POST http://localhost:3000/usuarios/
+curl -d '{"name":"Old App"}' -H "Content-Type: application/json" -X POST http://localhost:3000/users/
 ```
 
 * Update
@@ -84,12 +84,12 @@ curl -d '{"nome":"Old App 2.0"}' -H "Content-Type: application/json" -X POST htt
 This update some already existing ID
 
 ``` shell
-curl -d '{"nome":"New potato"}' -H "Content-Type: application/json" -X UPDATE http://0.0.0.0:3000/usuarios/2   ## Update ID 2 nome
+curl -d '{"name":"New potato"}' -H "Content-Type: application/json" -X UPDATE http://0.0.0.0:3000/users/2   ## Update ID 2 nome
 ```
 
 * Delete
 
 ``` shell
-curl -X DELETE http://0.0.0.0:3000/usuarios/    ## Delete all users
-curl -X DELETE http://0.0.0.0:3000/usuarios/5   ## Delete just ID 5
+curl -X DELETE http://0.0.0.0:3000/users/    ## Delete all users
+curl -X DELETE http://0.0.0.0:3000/users/5   ## Delete just ID 5
 ```
