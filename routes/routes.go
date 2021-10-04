@@ -12,5 +12,7 @@ import (
 func Routes() {
 	http.HandleFunc("/users/", controllers.UserHandler)
 
+	log.Println("Initializing the app")
+
 	log.Fatal(http.ListenAndServe(common.GetPort(), nil))
 }
