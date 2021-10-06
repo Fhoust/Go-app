@@ -2,19 +2,19 @@ FROM golang:1.17-alpine as builder
 
 WORKDIR /app
 
-COPY . ./
+COPY . .
 
 RUN go mod download
 
-RUN go build -o /Go-app
+RUN go build -o /Go-server server/main.go
 
-
+# Creating server container
 FROM alpine:3.13.6
 
 RUN apk add --no-cache ca-certificates
 
-COPY --from=builder /Go-app /Go-app
+COPY --from=builder /Go-server /Go-server
 
 EXPOSE 3000
 
-CMD ["/Go-app"]
+CMD ["/Go-server"]

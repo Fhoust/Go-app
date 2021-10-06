@@ -1,6 +1,6 @@
 # Go App
 
-A small go app just in order to study Go
+A small go app running using gRPC
 
 ## Requirements
 
@@ -15,8 +15,8 @@ This app collect some data from env, bellow you can find a list of all vars and 
 |:-------------:|:-------------:|:-------------:|
 |    DB_URL     |    0.0.0.0    | Database URL  |
 |    DB_USER    |     root      | Database User |
-|    DB_PASS    |               | Database Pass |
-|     PORT      |    3000       |   App Port    |
+|    DB_PASS    |    123456     | Database Pass |
+|     PORT      |     3000      |   App Port    |
 
 If the app cannot connect to database, it will exit.
 
@@ -32,7 +32,8 @@ docker build --tag db-client:latest .
 
 
 ``` shell
-go run *.go
+go run server/main.go
+go run client/main.go
 ```
 
 ### Running as container
@@ -46,50 +47,35 @@ docker run --name mysql --network host -e MYSQL_ROOT_PASSWORD=123456 -d mysql:la
 Starting the app
 
 ``` shell
-docker run -ti -e DB_PASS=123456 --network host db-client:latest
+docker run -ti --network host db-client:latest
 ```
 
 ## API
 
-### /users/
+The app was converted to gRPC, but you can still check the old files [here](https://github.com/Fhoust/Go-app/tree/8631704338aee0b5dcd571321ab6ac4e5c03710c)
 
-| Function      | Method        | Expected         |
-|:-------------:|:-------------:|:----------------:|
-|  Get user     | GET           | /{id} (optional) |
-|  Create new   | POST          | JSON             |
-|  Update user  | UPDATE        | JSON             |
-|  Delete user  | DELETE        | /{id} (optional) |
+## gRPC
 
-### API examples
+### Functions of server
 
-* Users
+All functions will receive and return a user struct (user.Name and User.Id)
 
-Return all users or the info of just one ID
+* AddNewUser()
 
-``` shell
-curl http://0.0.0.0:3000/users/    ## Return all users
-curl http://0.0.0.0:3000/users/2   ## Return info about just ID 2
-```
+Insert a new user inside the database
 
-* Create
+* GetUserInfo()
 
-Create a new user in the database
+Collect an id from the database
 
-``` shell
-curl -d '{"name":"Old App"}' -H "Content-Type: application/json" -X POST http://localhost:3000/users/
-```
+* UpdateOneUser()
 
-* Update
+Updates the value of one id
 
-This update some already existing ID
+* DeleteOldUser()
 
-``` shell
-curl -d '{"name":"New potato"}' -H "Content-Type: application/json" -X UPDATE http://0.0.0.0:3000/users/2   ## Update ID 2 nome
-```
+Delete a user of the database
 
-* Delete
+#### Examples
 
-``` shell
-curl -X DELETE http://0.0.0.0:3000/users/    ## Delete all users
-curl -X DELETE http://0.0.0.0:3000/users/5   ## Delete just ID 5
-```
+You will find a client example inside [client folder](https://github.com/Fhoust/Go-app/blob/master/client/main.go)

@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+option go_package = "github.com/Fhoust/Go-app/goApp";
+option java_multiple_files = true;
+option java_package = "io.Fhoust.Go-app.goApp";
+option java_outer_classname = "GoAppProto";
+
+package goApp;
+
+// Get user info from database.
+service GetUser {
+  rpc GetUserInfo (User) returns (User) {}
+}
+
+// Get user info from database.
+//service GetAllUsers {
+//  rpc GetAllUsersInfo returns (UserInfo) {}
+//}
+
+// Add a new user to database
+service AddUser {
+  rpc AddNewUser (User) returns (User) {}
+}
+
+// Update an old user in database
+service UpdateUser {
+  rpc UpdateOneUser (User) returns (User) {}
+}
+
+// Delete one user of database
+service DeleteUser {
+  rpc DeleteOldUser (User) returns (User) {}
+}
+
+// The response message containing the user's name and id.
+message User {
+  string name = 1;
+  int64 id = 2;
+}
