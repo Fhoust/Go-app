@@ -10,11 +10,12 @@ import (
 
 var (
 	db *sql.DB
+	firstRun = true
 )
 
 // SetupDB this function open a database connection
 func SetupDB() {
-	migration()
+
 	log.Println("Opening a new connection with database")
 	dbURL, dbPassword, dbUser := common.GetDBVars()
 	cfg := mysql.Config{
@@ -24,19 +25,21 @@ func SetupDB() {
 		Addr:   dbURL + ":3306",
 		DBName: "goapp",
 	}
-	myDB, err := sql.Open("mysql", cfg.FormatDSN())
+	myDB, _ := sql.Open("mysql", cfg.FormatDSN())
 
-	if err != nil {
-		log.Fatal("Not able to connected to the database")
-		panic(err)
+	if firstRun {
+		migration()
+	}
+
+	if err := myDB.Ping(); err != nil {
+		log.Panicf("Not able to connected to the database: %v", err)
+	} else {
+		log.Println("Successfully opened a new connection")
 	}
 
 	db = myDB
 
-	db.SetMaxIdleConns(10)
-	db.SetMaxIdleConns(5)
-	db.SetMaxOpenConns(8)
-	log.Println("Successfully opened a new connection")
+	firstRun = false
 }
 
 // GetDB returns the DB instance
@@ -44,7 +47,7 @@ func GetDB() *sql.DB {
 	err := db.Ping()
 	if err != nil {
 		SetupDB()
-		log.Panic("Problems with database: ", err)
+		log.Panicf("Problems with database: %v", err)
 	}
 	return db
 }
@@ -56,7 +59,6 @@ func CloseDB() {
 
 // migration prepare the database for the app
 func migration() {
-	log.Println("Starting migration")
 	dbURL, dbPassword, dbUser := common.GetDBVars()
 
 	cfg := mysql.Config{
@@ -66,12 +68,15 @@ func migration() {
 		Addr:   dbURL + ":3306",
 	}
 
-	myDB, err := sql.Open("mysql", cfg.FormatDSN())
+	myDB, _ := sql.Open("mysql", cfg.FormatDSN())
 
-	if err != nil {
-		log.Fatal("Not able to connected to the database")
-		panic(err)
+	if err := myDB.Ping(); err != nil {
+		log.Fatal("Not able to connected to the database: ", err)
+	} else {
+		log.Println("Successfully opened a new connection")
 	}
+
+	log.Println("Starting migration")
 	
 	myDB.Exec("create database if not exists goapp")
 	myDB.Exec("use goapp")

@@ -16,18 +16,24 @@ type User struct {
 }
 
 // Insert a new user in the database
-func Insert(newUser string) int {
+func Insert(newUser string) (int,  error) {
 	//TODO check if the user already exists
 	// TODO check received payload
 	db := database.GetDB()
 
 	stmt, _ := db.Prepare("insert into users(name) values(?)")
 
-	dbReturn, _ := stmt.Exec(newUser)
+	dbReturn, err := stmt.Exec(newUser)
+
+	if err != nil {
+		log.Panicf("Problems with database: %v", err)
+		return 0, err
+	}
+
 	id, _ := dbReturn.LastInsertId()
 
 	log.Printf("Inserted %s with the id %d\n", newUser, id)
-	return int(id)
+	return int(id), nil
 }
 
 // UpdateUser info of one user
