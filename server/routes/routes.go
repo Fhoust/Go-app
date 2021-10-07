@@ -18,9 +18,18 @@ type server struct {
 	pb.UnimplementedUpdateUserServer
 }
 
+var (
+	user *controllers.User
+)
+
 func (s *server) AddNewUser(ctx context.Context, in *pb.User) (*pb.User, error) {
 	log.Printf("Received: %v", in.GetName())
-	id := controllers.Insert(in.GetName())
+	id, err := controllers.Insert(in.GetName())
+
+	if err != nil {
+		return nil, err
+	}
+
 	return &pb.User{Name: in.GetName(), Id: int64(id)}, nil
 }
 
