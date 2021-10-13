@@ -7,7 +7,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"net/http"
-	"os"
 )
 
 // User struct
@@ -33,11 +32,7 @@ func Insert(newUser string) (int,  error) {
 
 	id, _ := dbReturn.LastInsertId()
 
-	//log.Printf("Inserted %s with the id %d\n", newUser, id)
-
-
-	hostname, _ := os.Hostname()
-	log.Printf("%v ---- insert\n", hostname)
+	log.Printf("Inserted %s with the id %d\n", newUser, id)
 	return int(id), nil
 }
 
@@ -49,11 +44,7 @@ func UpdateUser(id int, name string) {
 	stmt, _ := db.Prepare("update users set name = ? where id = ?")
 	stmt.Exec(name, id)
 
-
-	hostname, _ := os.Hostname()
-	log.Printf("%v ---- update\n", hostname)
-
-	//log.Printf("Updated %d to %s\n", id, name)
+	log.Printf("Updated %d to %s\n", id, name)
 
 }
 
@@ -69,9 +60,7 @@ func DeletePerId(id int) string {
 
 	deleter.Exec(id)
 
-	//log.Printf("Deleted the id: %d\n", id)
-	hostname, _ := os.Hostname()
-	log.Printf("%v ---- delete\n", hostname)
+	log.Printf("Deleted the id: %d\n", id)
 
 	return deadUser.Name
 }
@@ -96,7 +85,7 @@ func deleteAll(w http.ResponseWriter, r *http.Request) {
 
 	json, _ := json.Marshal(users)
 
-	//log.Println("All users was deleted...")
+	log.Println("All users was deleted...")
 
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, "All users was deleted\n%s",string(json))
@@ -110,9 +99,7 @@ func UserPerID(id int) string {
 	var user User
 	db.QueryRow("select id, name from users where id = ?", id).Scan(&user.ID, &user.Name)
 
-	//log.Printf("Requested info about %d - %s", user.ID, user.Name)
-	hostname, _ := os.Hostname()
-	log.Printf("%v ---- get\n", hostname)
+	log.Printf("Requested info about %d - %s", user.ID, user.Name)
 
 	return user.Name
 }
@@ -134,7 +121,7 @@ func AllUsers() string {
 
 	usersJson, _ := json.Marshal(users)
 
-	//log.Printf("Requested info about all users")
+	log.Printf("Requested info about all users")
 
 	return string(usersJson)
 }
