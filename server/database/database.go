@@ -16,6 +16,10 @@ var (
 // SetupDB this function open a database connection
 func SetupDB() {
 
+	if firstRun {
+		migration()
+	}
+
 	log.Println("Opening a new connection with database")
 	dbURL, dbPassword, dbUser := common.GetDBVars()
 	cfg := mysql.Config{
@@ -26,10 +30,6 @@ func SetupDB() {
 		DBName: "goapp",
 	}
 	myDB, _ := sql.Open("mysql", cfg.FormatDSN())
-
-	if firstRun {
-		migration()
-	}
 
 	if err := myDB.Ping(); err != nil {
 		log.Panicf("Not able to connected to the database: %v", err)
