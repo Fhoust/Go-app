@@ -2,22 +2,28 @@ package main
 
 import (
 	"context"
-	"log"
-	"os"
-	"time"
-
 	pb "github.com/Fhoust/Go-app/goApp"
 	"google.golang.org/grpc"
+	"log"
+	"os"
 )
 
 const (
-	address     = "localhost:3000"
-	defaultName = "world"
+	address     = "127.0.0.1:3000"
+	defaultName = "Potato"
 )
 
 func main() {
-	// Set up a connection to the server.
+	name := defaultName
+	if len(os.Args) > 1 {
+		name = os.Args[1]
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
+
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
@@ -27,16 +33,6 @@ func main() {
 	getUser := pb.NewGetUserClient(conn)
 	updateUser := pb.NewUpdateUserClient(conn)
 	deleteUser := pb.NewDeleteUserClient(conn)
-
-	// Contact the server and print out its response.
-	name := defaultName
-	if len(os.Args) > 1 {
-		name = os.Args[1]
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-
 
 	user, err := addUser.AddNewUser(ctx, &pb.User{Name: name})
 	if err != nil {
@@ -73,5 +69,5 @@ func main() {
 		log.Fatalf("Error: %v", err)
 	}
 	log.Printf("Now database has this value for %d: %s", user.GetId(), user.GetName())
-}
 
+}

@@ -23,7 +23,7 @@ var (
 )
 
 func (s *server) AddNewUser(ctx context.Context, in *pb.User) (*pb.User, error) {
-	log.Printf("Received: %v", in.GetName())
+	//log.Printf("Received: %v", in.GetName())
 	id, err := controllers.Insert(in.GetName())
 
 	if err != nil {
@@ -34,19 +34,19 @@ func (s *server) AddNewUser(ctx context.Context, in *pb.User) (*pb.User, error) 
 }
 
 func (s *server) GetUserInfo(ctx context.Context, in *pb.User) (*pb.User, error) {
-	log.Printf("Received: %v", in.GetId())
+	//log.Printf("Received: %v", in.GetId())
 	name := controllers.UserPerID(int(in.GetId()))
 	return &pb.User{Name: name, Id: in.GetId()}, nil
 }
 
 func (s *server) UpdateOneUser(ctx context.Context, in *pb.User) (*pb.User, error) {
-	log.Printf("Received: %v", in.GetId())
+	//log.Printf("Received: %v", in.GetId())
 	controllers.UpdateUser(int(in.GetId()), in.GetName())
 	return &pb.User{Name: in.GetName(), Id: in.GetId()}, nil
 }
 
 func (s *server) DeleteOldUser(ctx context.Context, in *pb.User) (*pb.User, error) {
-	log.Printf("Received: %v", in.GetId())
+	//log.Printf("Received: %v", in.GetId())
 	name := controllers.DeletePerId(int(in.GetId()))
 	return &pb.User{Name: name, Id: in.GetId()}, nil
 }
