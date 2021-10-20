@@ -88,7 +88,7 @@ $ kubens development
 $ docker run --name mysql --network host -e MYSQL_ROOT_PASSWORD=123456 -d mysql:latest
 ```
 
-#### Starting minikube and building app container
+#### Building app container
 
 We will need to build our container inside minikube docker in order for it be able to find our image, so run:
 
@@ -127,6 +127,17 @@ we are going to open a tunnel between minikube and our local machine
 
 ``` shell
 $ minikube tunnel
+> Status:	
+>     machine: minikube
+> 	  pid: 172079
+> 	  route: 10.96.0.0/12 -> 192.168.49.2
+> 	  minikube: Running
+> 	  services: [go-app-server-svc]
+>   errors: 
+> 		minikube: no errors
+> 		router: no errors
+> 		loadbalancer emulator: no errors
+
 
 $ kubectl get svc
 > NAME                TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
@@ -144,6 +155,86 @@ $ go run client/main.go Potato
 > 2021/10/13 17:04:47 15 was deleted
 > 2021/10/13 17:04:47 Now database has this value for 15:
 ```
+
+## Troubleshooting
+
+### ErrImageNeverPull
+
+``` shell
+$ kubectl get po
+> NAME                             READY   STATUS              RESTARTS   AGE
+> go-app-server-5db55c49d4-ljzrn   0/1     ErrImageNeverPull   0          3s
+```
+
+This happens when minikube can't find our app image, make sure to follow all commands in [Building app container](
+https://github.com/Fhoust/Go-app#building-app-container)
+
+### Error or CrashLoopBackOff
+
+``` shell
+$ kubectl get po
+> NAME                             READY   STATUS   RESTARTS     AGE
+> go-app-server-5db55c49d4-8rcxr   0/1     Error    1 (2s ago)   3s
+```
+
+Or 
+
+``` shell
+$ kubectl get po
+> NAME                             READY   STATUS             RESTARTS     AGE
+> go-app-server-5db55c49d4-8rcxr   0/1     CrashLoopBackOff   1 (5s ago)   7s
+```
+
+Usually this happens when our app can't connect to the database, check if MySQL container is running in your machine \
+docker.
+
+``` shell
+$ eval $(minikube docker-env)
+
+$ docker ps
+CONTAINER ID   IMAGE                                 COMMAND                  CREATED       STATUS       PORTS          NAMES
+5012b0043988   gcr.io/k8s-minikube/kicbase:v0.0.27   "/usr/local/bin/entr…"   6 hours ago   Up 6 hours   127.0.0.14...  minikube
+```
+
+You can check more details in our logs:
+
+``` shell
+$ kubectl logs -f -l service=server
+> 2021/10/18 15:55:14 Collecting env vars
+> 2021/10/18 15:55:14 Undeclared DB_USER, using default...
+> 2021/10/18 15:55:14 Undeclared DB_PASS, using default...
+> 2021/10/18 15:55:14 DB INFO -> URL: host.minikube.internal | User: root | Port: 3000
+> 2021/10/18 15:55:14 Not able to connected to the database: dial tcp 192.168.49.1:3306: connect: connection refused
+```
+
+To start MySQL, run:
+
+``` shell
+$ docker run --name mysql --network host -e MYSQL_ROOT_PASSWORD=123456 -d mysql:latest
+
+$ docker ps
+CONTAINER ID   IMAGE                                 COMMAND                  CREATED       STATUS       PORTS          NAMES
+c8a302c44342   mysql:latest                          "docker-entrypoint.s…"   4 hours ago   Up 1 second                 mysql
+5012b0043988   gcr.io/k8s-minikube/kicbase:v0.0.27   "/usr/local/bin/entr…"   6 hours ago   Up 6 hours   127.0.0.14...  minikube
+```
+
+### client/main.go don't start
+
+If your client don't start, take a look if the Kubernetes service is set to a different  External IP than 127.0.0.1. 
+
+``` shell
+$ kubectl get svc
+> NAME                TYPE           CLUSTER-IP      EXTERNAL-IP     PORT(S)          AGE
+> go-app-server-svc   LoadBalancer   10.110.188.88   10.110.188.88   3000:32435/TCP   52m
+```
+
+If this is the case, then go to client/main.go and change the *address* variable to the IP that is show to you. 
+
+``` go
+address     = "10.110.188.88:3000"
+```
+
+Now try it again.
 
 ## API REST
 

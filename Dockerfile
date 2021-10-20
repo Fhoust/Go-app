@@ -11,8 +11,6 @@ RUN go build -o /Go-server server/main.go
 # Creating server container
 FROM alpine:3.13.6
 
-RUN apk add --no-cache ca-certificates
-
 COPY --from=builder /Go-server /Go-server
 
 EXPOSE 3000
