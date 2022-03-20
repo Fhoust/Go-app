@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/Fhoust/Go-app/common"
+	"github.com/zerepl/go-app/common"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"

@@ -1,4 +1,4 @@
-module github.com/Fhoust/Go-app
+module github.com/zerepl/go-app
 
 go 1.17
 

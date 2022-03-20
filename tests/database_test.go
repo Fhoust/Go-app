@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/Fhoust/Go-app/common"
-	"github.com/Fhoust/Go-app/database"
+	"github.com/zerepl/go-app/common"
+	"github.com/zerepl/go-app/database"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
