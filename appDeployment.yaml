@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: server
+    app.kubernetes.io/name: load-balancer-go-app
+    linkerd.io/inject: enabled
+    app: go-app
+  name: go-app
+  namespace: development
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: load-balancer-go-app
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: load-balancer-go-app
+        service: server
+    spec:
+      containers:
+        - image: go-app:latest
+          name: go-app
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PORT
+              value: "8080"
+            - name: DB_URL
+              value: "host.minikube.internal"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-app-svc
+  namespace: development
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: load-balancer-go-app
+  ports:
+    - name: grpc
+      port: 8080
+      targetPort: 8080

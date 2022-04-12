@@ -1,11 +1,11 @@
-package api
+package repositories
 
 import (
 	"context"
 	"github.com/zerepl/go-app/internal/model"
 )
 
-type UserService interface {
+type UserRepository interface {
 	GetUser(context.Context, int64) (*model.User, error)
 	GetAllUsers(context.Context) ([]model.User, error)
 	CreateNewUser(context.Context, model.User) (int64, error)

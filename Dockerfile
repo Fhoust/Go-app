@@ -6,15 +6,12 @@ COPY . ./
 
 RUN go mod download
 
-RUN go build -o /Go-app
-
+RUN go build -o /go-app
 
 FROM alpine:3.13.6
 
-RUN apk add --no-cache ca-certificates
+COPY --from=builder /go-app /go-app
 
-COPY --from=builder /Go-app /Go-app
+EXPOSE 8080
 
-EXPOSE 3000
-
-CMD ["/Go-app"]
+CMD ["/go-app"]

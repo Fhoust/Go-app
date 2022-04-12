@@ -1,11 +1,10 @@
-package database
+package driver
 
 import (
 	"database/sql"
 	"github.com/go-sql-driver/mysql"
+	"github.com/zerepl/go-app/internal/domain/common"
 	"log"
-
-	"github.com/zerepl/go-app/common"
 )
 
 var (
@@ -13,7 +12,7 @@ var (
 )
 
 // SetupDB this function open a database connection
-func SetupDB() {
+func SetupDB() *sql.DB {
 	migration()
 	log.Println("Opening a new connection with database")
 	dbURL, dbPassword, dbUser := common.GetDBVars()
@@ -34,24 +33,15 @@ func SetupDB() {
 	db = myDB
 
 	db.SetMaxIdleConns(10)
-	db.SetMaxIdleConns(5)
 	db.SetMaxOpenConns(8)
 	log.Println("Successfully opened a new connection")
-}
 
-// GetDB returns the DB instance
-func GetDB() *sql.DB {
-	err := db.Ping()
+	err = db.Ping()
 	if err != nil {
-		SetupDB()
 		log.Panic("Problems with database: ", err)
 	}
-	return db
-}
 
-// CloseDB close the connection between app and database
-func CloseDB() {
-	db.Close()
+	return db
 }
 
 // migration prepare the database for the app
@@ -72,10 +62,10 @@ func migration() {
 		log.Fatal("Not able to connected to the database")
 		panic(err)
 	}
-	
-	myDB.Exec("create database if not exists goapp")
-	myDB.Exec("use goapp")
-	myDB.Exec(`create table if not exists users (
+
+	myDB.Exec("CREATE database IF NOT EXISTS goapp")
+	myDB.Exec("USE goapp")
+	myDB.Exec(`CREATE TABLE IF NOT EXISTS users (
 		id integer auto_increment,
 		name varchar(80),
 		PRIMARY KEY(id)
